@@ -31,6 +31,7 @@ from dotenv import load_dotenv
 # Know pyplot well
 import matplotlib.pyplot as plt
 
+
 # Import functions from local modules
 from utils.utils_consumer import create_kafka_consumer
 from utils.utils_logger import logger

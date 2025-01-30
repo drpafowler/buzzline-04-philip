@@ -1,0 +1,4 @@
+{"message": "I just saw Python! It was funny.", "author": "Alice", "timestamp": "2025-01-30 06:02:21", "category": "tech", "sentiment": 0.72, "keyword_mentioned": "Python", "message_length": 32}
+{"message": "I just loved travel! It was weird.", "author": "Eve", "timestamp": "2025-01-30 06:02:26", "category": "travel", "sentiment": 0.18, "keyword_mentioned": "travel", "message_length": 34}
+{"message": "I just found a trick! It was weird.", "author": "Charlie", "timestamp": "2025-01-30 06:02:31", "category": "other", "sentiment": 0.75, "keyword_mentioned": "other", "message_length": 35}
+{"message": "I just loved recipe! It was amazing.", "author": "Alice", "timestamp": "2025-01-30 06:02:36", "category": "food", "sentiment": 0.07, "keyword_mentioned": "recipe", "message_length": 36}
