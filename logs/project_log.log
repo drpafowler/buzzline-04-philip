@@ -1,0 +1,11 @@
+2025-01-30 05:39:53.552 | INFO     | utils.utils_logger:<module>:38 - Logging to file: logs/project_log.log
+2025-01-30 05:40:04.529 | INFO     | utils.utils_logger:<module>:38 - Logging to file: logs/project_log.log
+2025-01-30 05:40:04.537 | INFO     | __main__:main:277 - START consumer.
+2025-01-30 05:40:04.537 | INFO     | __main__:get_kafka_topic:51 - Kafka topic: smoker_csv
+2025-01-30 05:40:04.537 | INFO     | __main__:get_kafka_consumer_group_id:58 - Kafka consumer group id: smoker_group
+2025-01-30 05:40:04.537 | INFO     | __main__:get_rolling_window_size:71 - Rolling window size: 10
+2025-01-30 05:40:04.537 | INFO     | __main__:main:287 - Consumer: Topic 'smoker_csv' and group 'smoker_group'...
+2025-01-30 05:40:04.537 | INFO     | __main__:main:288 - Rolling window size: 10
+2025-01-30 05:40:04.537 | INFO     | utils.utils_producer:get_kafka_broker_address:50 - Kafka broker address: localhost:9092
+2025-01-30 05:40:04.537 | INFO     | utils.utils_consumer:create_kafka_consumer:44 - Creating Kafka consumer. Topic='smoker_csv' and group ID='smoker_group'.
+2025-01-30 05:40:04.587 | ERROR    | utils.utils_consumer:create_kafka_consumer:62 - Error creating Kafka consumer: NoBrokersAvailable
