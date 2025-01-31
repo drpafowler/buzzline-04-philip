@@ -1,15 +1,18 @@
 """
-json_consumer_case.py
+project_consumer_philip.py
 
 Consume json messages from a Kafka topic and visualize author counts in real-time.
 
-JSON is a set of key:value pairs. 
-
-Example serialized Kafka message
-"{\"message\": \"I love Python!\", \"author\": \"Eve\"}"
-
-Example JSON message (after deserialization) to be analyzed
-{"message": "I love Python!", "author": "Eve"}
+Example JSON message
+{
+    "message": "I just shared a meme! It was amazing.",
+    "author": "Charlie",
+    "timestamp": "2025-01-29 14:35:20",
+    "category": "humor",
+    "sentiment": 0.87,
+    "keyword_mentioned": "meme",
+    "message_length": 42
+}
 
 """
 
@@ -30,6 +33,7 @@ from dotenv import load_dotenv
 # Use the common alias 'plt' for Matplotlib.pyplot
 # Know pyplot well
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 # Import functions from local modules
@@ -50,14 +54,12 @@ load_dotenv()
 def get_kafka_topic() -> str:
     """Fetch Kafka topic from environment or use default."""
     topic = os.getenv("PROJECT_TOPIC", "buzzline-topic")
-    logger.info(f"Kafka topic: {topic}")
     return topic
 
 
 def get_kafka_consumer_group_id() -> str:
     """Fetch Kafka consumer group id from environment or use default."""
     group_id: str = os.getenv("PROJECT_TOPIC", "buzzline-topic")
-    logger.info(f"Kafka consumer group id: {group_id}")
     return group_id
 
 
@@ -65,8 +67,8 @@ def get_kafka_consumer_group_id() -> str:
 # Set up data structures
 #####################################
 
-# Initialize a dictionary to store author counts
-author_counts = defaultdict(int)
+# Initialize a dataframe to store data
+data = pd.DataFrame(columns=["message", "author", "timestamp", "category", "sentiment", "keyword_mentioned", "message_length"])
 
 #####################################
 # Set up live visuals
@@ -89,28 +91,21 @@ plt.ion()
 
 
 def update_chart():
-    """Update the live chart with the latest author counts."""
+    """Update the live chart with the average sentiment for each author."""
     # Clear the previous chart
     ax.clear()
 
-    # Get the authors and counts from the dictionary
-    authors_list = list(author_counts.keys())
-    counts_list = list(author_counts.values())
+    # Group the data by author and calculate the average sentiment for each author
+    avg_sentiment = data.groupby("author")["sentiment"].mean().reset_index()
 
     # Create a bar chart using the bar() method.
-    # Pass in the x list, the y list, and the color
-    ax.bar(authors_list, counts_list, color="skyblue")
+    # Pass in the author list and the average sentiment list
+    ax.bar(avg_sentiment["author"], avg_sentiment["sentiment"], color="skyblue")
 
     # Use the built-in axes methods to set the labels and title
-    ax.set_xlabel("Authors")
-    ax.set_ylabel("Message Counts")
-    ax.set_title("Real-Time Author Message Counts by Philip")
-
-    # Use the set_xticklabels() method to rotate the x-axis labels
-    # Pass in the x list, specify the rotation angle is 45 degrees,
-    # and align them to the right
-    # ha stands for horizontal alignment
-    ax.set_xticklabels(authors_list, rotation=45, ha="right")
+    ax.set_xlabel("Author")
+    ax.set_ylabel("Average Sentiment")
+    ax.set_title("Real-Time Average Sentiment by Author")
 
     # Use the tight_layout() method to automatically adjust the padding
     plt.tight_layout()
@@ -135,39 +130,23 @@ def process_message(message: str) -> None:
         message (str): The JSON message as a string.
     """
     try:
-        # Log the raw message for debugging
-        logger.debug(f"Raw message: {message}")
 
-        # Parse the JSON string into a Python dictionary
-        message_dict: dict = json.loads(message)
+        # Parse the JSON string into a dictionary
+        message_dict = json.loads(message)
 
-        # Ensure the processed JSON is logged for debugging
-        logger.info(f"Processed JSON message: {message_dict}")
+        # Append the message to the dataframe
+        data.loc[len(data)] = [
+            message_dict.get("message", ""),
+            message_dict.get("author", "unknown"),
+            message_dict.get("timestamp", ""),
+            message_dict.get("category", ""),
+            message_dict.get("sentiment", 0.0),
+            message_dict.get("keyword_mentioned", ""),
+            message_dict.get("message_length", 0)
+        ]
 
-        # Ensure it's a dictionary before accessing fields
-        if isinstance(message_dict, dict):
-            # Extract the 'author' field from the Python dictionary
-            author = message_dict.get("author", "unknown")
-            logger.info(f"Message received from author: {author}")
-
-            # Increment the count for the author
-            author_counts[author] += 1
-
-            # Log the updated counts
-            logger.info(f"Updated author counts: {dict(author_counts)}")
-
-            # Update the chart
-            update_chart()
-
-            # Log the updated chart
-            logger.info(f"Chart updated successfully for message: {message}")
-        else:
-            logger.error(f"Expected a dictionary but got: {type(message_dict)}")
-
-    except json.JSONDecodeError:
-        logger.error(f"Invalid JSON message: {message}")
-    except Exception as e:
-        logger.error(f"Error processing message: {e}")
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing JSON message: {e}")
 
 
 #####################################
