@@ -29,6 +29,8 @@ from dotenv import load_dotenv
 # Import Matplotlib.pyplot for live plotting
 # Use the common alias 'plt' for Matplotlib.pyplot
 # Know pyplot well
+import matplotlib
+# matplotlib.use('nbAgg')
 import matplotlib.pyplot as plt
 
 
@@ -67,7 +69,8 @@ def get_kafka_consumer_group_id() -> str:
 
 # Initialize a dictionary to store author counts
 # author_counts = defaultdict(int)
-author_sentiments = {}  # Stores {author: [total_sentiment, count]}
+author_counts = {}
+author_sentiments = {}
 
 
 #####################################
@@ -97,7 +100,12 @@ def update_chart():
 
     # Get the authors and counts from the dictionary
     authors_list = list(author_counts.keys())
-    mean_sentiments = [total_sentiment / count if count > 0 else 0 for total_sentiment, count in author_sentiments.values()]
+    mean_sentiments = [author_sentiments[author][0] / author_sentiments[author][1] if author_sentiments[author][1] > 0 else 0 for author in authors_list]
+
+    # Ensure the lengths of authors_list and mean_sentiments match
+    if len(authors_list) != len(mean_sentiments):
+        logger.error("Mismatch between authors_list and mean_sentiments lengths")
+        return
 
     # Create a bar chart using the bar() method.
     # Pass in the x list, the y list, and the color
@@ -122,7 +130,6 @@ def update_chart():
 
     # Pause briefly to allow some time for the chart to render
     plt.pause(0.01)
-
 
 #####################################
 # Function to process a single message

@@ -29,6 +29,8 @@ from dotenv import load_dotenv
 # Import Matplotlib.pyplot for live plotting
 # Use the common alias 'plt' for Matplotlib.pyplot
 # Know pyplot well
+import matplotlib
+matplotlib.use('nbAgg')
 import matplotlib.pyplot as plt
 
 
