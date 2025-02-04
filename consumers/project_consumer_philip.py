@@ -101,6 +101,13 @@ def update_chart():
     # Get the authors and counts from the dictionary
     authors_list = list(author_counts.keys())
     mean_sentiments = [author_sentiments[author][0] / author_sentiments[author][1] if author_sentiments[author][1] > 0 else 0 for author in authors_list]
+    
+
+    # Log the authors and counts for debugging
+    logger.info(f"Authors: {authors_list}")
+    logger.info(f"Mean Sentiments: {mean_sentiments}")
+    logger.info(f"Mean Sentiments Data Types: {[type(x) for x in mean_sentiments]}")
+    logger.info(f"Authors Data Types: {[type(x) for x in authors_list]}") #Check author types as well
 
     # Ensure the lengths of authors_list and mean_sentiments match
     if len(authors_list) != len(mean_sentiments):
@@ -137,12 +144,6 @@ def update_chart():
 
 
 def process_message(message: str) -> None:
-    """
-    Process a single JSON message from Kafka and update the chart.
-
-    Args:
-        message (str): The JSON message as a string.
-    """
     try:
         # Log the raw message for debugging
         logger.debug(f"Raw message: {message}")
