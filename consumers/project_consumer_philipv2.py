@@ -111,7 +111,7 @@ def update_chart():
 
     # Create a pie chart for categories
     ax2.pie(category_counts_list, labels=categories_list, autopct="%1.1f%%")
-    ax2.legend(categories_list, title="Categories", loc="upper left", bbox_to_anchor=(1, 0, 0.5, 1))
+    ax2.legend(categories_list, title="Categories", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
     ax2.set_title("Real-Time Category Message Counts by Philip")
 
     # Use the tight_layout() method to automatically adjust the padding
