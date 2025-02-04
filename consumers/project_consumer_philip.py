@@ -66,7 +66,9 @@ def get_kafka_consumer_group_id() -> str:
 #####################################
 
 # Initialize a dictionary to store author counts
-author_counts = defaultdict(int)
+# author_counts = defaultdict(int)
+author_sentiments = {}  # Stores {author: [total_sentiment, count]}
+
 
 #####################################
 # Set up live visuals
@@ -95,16 +97,16 @@ def update_chart():
 
     # Get the authors and counts from the dictionary
     authors_list = list(author_counts.keys())
-    counts_list = list(author_counts.values())
+    mean_sentiments = [total_sentiment / count if count > 0 else 0 for total_sentiment, count in author_sentiments.values()]
 
     # Create a bar chart using the bar() method.
     # Pass in the x list, the y list, and the color
-    ax.bar(authors_list, counts_list, color="skyblue")
+    ax.bar(authors_list, mean_sentiments, color="skyblue")
 
     # Use the built-in axes methods to set the labels and title
     ax.set_xlabel("Authors")
-    ax.set_ylabel("Message Counts")
-    ax.set_title("Real-Time Author Message Counts by Philip")
+    ax.set_ylabel("Mean Sentiment Score")
+    ax.set_title("Real-Time Author Mean Sentiment Scores by Philip")
 
     # Use the set_xticklabels() method to rotate the x-axis labels
     # Pass in the x list, specify the rotation angle is 45 degrees,
@@ -148,18 +150,17 @@ def process_message(message: str) -> None:
         if isinstance(message_dict, dict):
             # Extract the 'author' field from the Python dictionary
             author = message_dict.get("author", "unknown")
-            logger.info(f"Message received from author: {author}")
+            sentiment = message_dict.get("sentiment", 0)  # Get sentiment score, default to 0 if missing.  Important!
+            logger.info(f"Message received from author: {author} with sentiment: {sentiment}")
 
-            # Increment the count for the author
-            author_counts[author] += 1
+            if author not in author_sentiments:
+                author_sentiments[author] = [sentiment, 1]  # Initialize
+            else:
+                author_sentiments[author][0] += sentiment
+                author_sentiments[author][1] += 1
 
-            # Log the updated counts
-            logger.info(f"Updated author counts: {dict(author_counts)}")
-
-            # Update the chart
+            logger.info(f"Updated author sentiments: {dict(author_sentiments)}")
             update_chart()
-
-            # Log the updated chart
             logger.info(f"Chart updated successfully for message: {message}")
         else:
             logger.error(f"Expected a dictionary but got: {type(message_dict)}")
