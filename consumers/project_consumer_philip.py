@@ -1,5 +1,5 @@
 """
-json_consumer_case.py
+project_consumer_philip.py
 
 Consume json messages from a Kafka topic and visualize author counts in real-time.
 
@@ -68,10 +68,7 @@ def get_kafka_consumer_group_id() -> str:
 #####################################
 
 # Initialize a dictionary to store author counts
-# author_counts = defaultdict(int)
-author_counts = {}
-author_sentiments = {}
-
+author_counts = defaultdict(int)
 
 #####################################
 # Set up live visuals
@@ -100,34 +97,17 @@ def update_chart():
 
     # Get the authors and counts from the dictionary
     authors_list = list(author_counts.keys())
-    mean_sentiments = [author_sentiments[author][0] / author_sentiments[author][1] if author_sentiments[author][1] > 0 else 0 for author in authors_list]
-    
+    counts_list = list(author_counts.values())
 
-    # Log the authors and counts for debugging
-    logger.info(f"Authors: {authors_list}")
-    logger.info(f"Mean Sentiments: {mean_sentiments}")
-    logger.info(f"Mean Sentiments Data Types: {[type(x) for x in mean_sentiments]}")
-    logger.info(f"Authors Data Types: {[type(x) for x in authors_list]}") #Check author types as well
-
-    # Ensure the lengths of authors_list and mean_sentiments match
-    if len(authors_list) != len(mean_sentiments):
-        logger.error("Mismatch between authors_list and mean_sentiments lengths")
-        return
-
-    # Create a bar chart using the bar() method.
+    # Create a pie chart using the pie() method.
     # Pass in the x list, the y list, and the color
-    ax.bar(authors_list, mean_sentiments, color="skyblue")
+    ax.pie(counts_list, labels=authors_list, autopct="%1.1f%%")
 
-    # Use the built-in axes methods to set the labels and title
-    ax.set_xlabel("Authors")
-    ax.set_ylabel("Mean Sentiment Score")
-    ax.set_title("Real-Time Author Mean Sentiment Scores by Philip")
+    # Labels and legend
+    ax.legend(authors_list, title="Authors", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    ax.set_title("Real-Time Author Message Counts by Philip")
 
-    # Use the set_xticklabels() method to rotate the x-axis labels
-    # Pass in the x list, specify the rotation angle is 45 degrees,
-    # and align them to the right
-    # ha stands for horizontal alignment
-    ax.set_xticklabels(authors_list, rotation=45, ha="right")
+
 
     # Use the tight_layout() method to automatically adjust the padding
     plt.tight_layout()
@@ -144,6 +124,12 @@ def update_chart():
 
 
 def process_message(message: str) -> None:
+    """
+    Process a single JSON message from Kafka and update the chart.
+
+    Args:
+        message (str): The JSON message as a string.
+    """
     try:
         # Log the raw message for debugging
         logger.debug(f"Raw message: {message}")
@@ -158,17 +144,18 @@ def process_message(message: str) -> None:
         if isinstance(message_dict, dict):
             # Extract the 'author' field from the Python dictionary
             author = message_dict.get("author", "unknown")
-            sentiment = message_dict.get("sentiment", 0)  # Get sentiment score, default to 0 if missing.  Important!
-            logger.info(f"Message received from author: {author} with sentiment: {sentiment}")
+            logger.info(f"Message received from author: {author}")
 
-            if author not in author_sentiments:
-                author_sentiments[author] = [sentiment, 1]  # Initialize
-            else:
-                author_sentiments[author][0] += sentiment
-                author_sentiments[author][1] += 1
+            # Increment the count for the author
+            author_counts[author] += 1
 
-            logger.info(f"Updated author sentiments: {dict(author_sentiments)}")
+            # Log the updated counts
+            logger.info(f"Updated author counts: {dict(author_counts)}")
+
+            # Update the chart
             update_chart()
+
+            # Log the updated chart
             logger.info(f"Chart updated successfully for message: {message}")
         else:
             logger.error(f"Expected a dictionary but got: {type(message_dict)}")
