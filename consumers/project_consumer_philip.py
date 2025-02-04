@@ -30,7 +30,7 @@ from dotenv import load_dotenv
 # Use the common alias 'plt' for Matplotlib.pyplot
 # Know pyplot well
 import matplotlib
-# matplotlib.use('nbAgg')
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 
 
